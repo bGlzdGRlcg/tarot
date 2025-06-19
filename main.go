@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"image"
 	"log"
 	"os"
 	"strconv"
@@ -10,7 +8,6 @@ import (
 
 	"tarot/tarot"
 
-	"github.com/disintegration/imaging"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v4"
 )
@@ -38,6 +35,13 @@ func main() {
 		Token:  os.Getenv("TOKEN"),
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	}
+
+	url := os.Getenv("URL")
+
+	if url == "" {
+		url = "https://tarot.listder.xyz/"
+	}
+
 	b, err := tele.NewBot(pref)
 	if err != nil {
 		log.Fatal(err)
@@ -52,18 +56,10 @@ func main() {
 		card, is_down := tarot.Get_tarot()
 		t := &tele.Photo{}
 		if is_down == 0 {
-			img, _ := os.Open("assets/" + card.Card_file + ".png")
-			defer img.Close()
-			t = &tele.Photo{File: tele.FromReader(img), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：" + card.Card_name + " 「正位」\n" + card.Card_up}
+			t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：" + card.Card_name + " 「正位」\n" + card.Card_up}
 		}
 		if is_down == 1 {
-			img, _ := os.Open("assets/" + card.Card_file + ".png")
-			defer img.Close()
-			i, _, _ := image.Decode(img)
-			rotated := imaging.Rotate180(i)
-			var buf bytes.Buffer
-			imaging.Encode(&buf, rotated, imaging.PNG)
-			t = &tele.Photo{File: tele.FromReader(&buf), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：" + card.Card_name + " 「逆位」\n" + card.Card_down}
+			t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：" + card.Card_name + " 「逆位」\n" + card.Card_down}
 		}
 		return c.SendAlbum(tele.Album{t})
 	})
@@ -81,18 +77,10 @@ func main() {
 			num := strconv.Itoa(i + 1)
 			frep := f.Frep[i] + "\n"
 			if is_down == 0 {
-				img, _ := os.Open("assets/" + card.Card_file + ".png")
-				defer img.Close()
-				t = &tele.Photo{File: tele.FromReader(img), Caption: frep + "第" + num + "张牌：\n" + card.Card_name + " 「正位」\n" + card.Card_up}
+				t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: frep + "第" + num + "张牌：\n" + card.Card_name + " 「正位」\n" + card.Card_up}
 			}
 			if is_down == 1 {
-				img, _ := os.Open("assets/" + card.Card_file + ".png")
-				defer img.Close()
-				i, _, _ := image.Decode(img)
-				rotated := imaging.Rotate180(i)
-				var buf bytes.Buffer
-				imaging.Encode(&buf, rotated, imaging.PNG)
-				t = &tele.Photo{File: tele.FromReader(&buf), Caption: frep + "第" + num + "张牌：" + card.Card_name + " 「逆位」\n" + card.Card_down}
+				t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: frep + "第" + num + "张牌：" + card.Card_name + " 「逆位」\n" + card.Card_down}
 			}
 			c.SendAlbum(tele.Album{t})
 		}
@@ -103,18 +91,10 @@ func main() {
 		card, is_down := tarot.Get_tarot()
 		t := &tele.Photo{}
 		if is_down == 0 {
-			img, _ := os.Open("assets/" + card.Card_file + ".png")
-			defer img.Close()
-			t = &tele.Photo{File: tele.FromReader(img), Caption: rpy + card.Card_name + " 「正位」\n" + card.Card_up}
+			t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: rpy + card.Card_name + " 「正位」\n" + card.Card_up}
 		}
 		if is_down == 1 {
-			img, _ := os.Open("assets/" + card.Card_file + ".png")
-			defer img.Close()
-			i, _, _ := image.Decode(img)
-			rotated := imaging.Rotate180(i)
-			var buf bytes.Buffer
-			imaging.Encode(&buf, rotated, imaging.PNG)
-			t = &tele.Photo{File: tele.FromReader(&buf), Caption: rpy + card.Card_name + " 「逆位」\n" + card.Card_down}
+			t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: rpy + card.Card_name + " 「逆位」\n" + card.Card_down}
 		}
 		return c.SendAlbum(tele.Album{t})
 	})
