@@ -1,0 +1,190 @@
+.
+├── _Cups
+│   ├── CUPS-01.jpg
+│   ├── CUPS-02.jpg
+│   ├── CUPS-03.jpg
+│   ├── CUPS-04.jpg
+│   ├── CUPS-05.jpg
+│   ├── CUPS-06.jpg
+│   ├── CUPS-07.jpg
+│   ├── CUPS-08.jpg
+│   ├── CUPS-09.jpg
+│   ├── CUPS-10.jpg
+│   ├── CUPS-KING.jpg
+│   ├── CUPS-KNIGHT.jpg
+│   ├── CUPS-PAGE.jpg
+│   └── CUPS-QUEEN.jpg
+├── Cups
+│   ├── CUPS-01.jpg
+│   ├── CUPS-02.jpg
+│   ├── CUPS-03.jpg
+│   ├── CUPS-04.jpg
+│   ├── CUPS-05.jpg
+│   ├── CUPS-06.jpg
+│   ├── CUPS-07.jpg
+│   ├── CUPS-08.jpg
+│   ├── CUPS-09.jpg
+│   ├── CUPS-10.jpg
+│   ├── CUPS-KING.jpg
+│   ├── CUPS-KNIGHT.jpg
+│   ├── CUPS-PAGE.jpg
+│   ├── CUPS-QUEEN.jpg
+│   └── index.html
+├── _Extra
+│   ├── BG.jpg
+│   ├── COINS-ACE.jpg
+│   ├── CUPS-ACE.jpg
+│   ├── SWORDS-ACE.jpg
+│   └── WANDS-ACE.jpg
+├── Extra
+│   ├── BG.jpg
+│   ├── COINS-ACE.jpg
+│   ├── CUPS-ACE.jpg
+│   ├── index.html
+│   ├── SWORDS-ACE.jpg
+│   └── WANDS-ACE.jpg
+├── index.html
+├── _MajorArcana
+│   ├── 00-THE-FOOL.jpg
+│   ├── 01-THE-MAGICIAN.jpg
+│   ├── 02-THE-HIGH-PRIESTESS.jpg
+│   ├── 03-THE-EMPRESS.jpg
+│   ├── 04-THE-EMPEROR.jpg
+│   ├── 05-THE-HIEROPHANT.jpg
+│   ├── 06-THE-LOVERS.jpg
+│   ├── 07-THE-CHARIOT.jpg
+│   ├── 08-STRENGTH.jpg
+│   ├── 09-THE-HERMIT.jpg
+│   ├── 10-THE-WHEEL-OF-FORTUNE.jpg
+│   ├── 11-JUSTICE.jpg
+│   ├── 12-THE-HANGED-MAN.jpg
+│   ├── 13-DEATH.jpg
+│   ├── 14-TEMPERANCE.jpg
+│   ├── 15-THE-DEVIL.jpg
+│   ├── 16-THE-TOWER.jpg
+│   ├── 17-THE-STAR.jpg
+│   ├── 18-THE-MOON.jpg
+│   ├── 19-THE-SUN.jpg
+│   ├── 20-JUDGEMENT.jpg
+│   └── 21-THE-WORLD.jpg
+├── MajorArcana
+│   ├── 00-THE-FOOL.jpg
+│   ├── 01-THE-MAGICIAN.jpg
+│   ├── 02-THE-HIGH-PRIESTESS.jpg
+│   ├── 03-THE-EMPRESS.jpg
+│   ├── 04-THE-EMPEROR.jpg
+│   ├── 05-THE-HIEROPHANT.jpg
+│   ├── 06-THE-LOVERS.jpg
+│   ├── 07-THE-CHARIOT.jpg
+│   ├── 08-STRENGTH.jpg
+│   ├── 09-THE-HERMIT.jpg
+│   ├── 10-THE-WHEEL-OF-FORTUNE.jpg
+│   ├── 11-JUSTICE.jpg
+│   ├── 12-THE-HANGED-MAN.jpg
+│   ├── 13-DEATH.jpg
+│   ├── 14-TEMPERANCE.jpg
+│   ├── 15-THE-DEVIL.jpg
+│   ├── 16-THE-TOWER.jpg
+│   ├── 17-THE-STAR.jpg
+│   ├── 18-THE-MOON.jpg
+│   ├── 19-THE-SUN.jpg
+│   ├── 20-JUDGEMENT.jpg
+│   ├── 21-THE-WORLD.jpg
+│   └── index.html
+├── _Pentacles
+│   ├── PENTACLES-01.jpg
+│   ├── PENTACLES-02.jpg
+│   ├── PENTACLES-03.jpg
+│   ├── PENTACLES-04.jpg
+│   ├── PENTACLES-05.jpg
+│   ├── PENTACLES-06.jpg
+│   ├── PENTACLES-07.jpg
+│   ├── PENTACLES-08.jpg
+│   ├── PENTACLES-09.jpg
+│   ├── PENTACLES-10.jpg
+│   ├── PENTACLES-KING.jpg
+│   ├── PENTACLES-KNIGHT.jpg
+│   ├── PENTACLES-PAGE.jpg
+│   └── PENTACLES-QUEEN.jpg
+├── Pentacles
+│   ├── index.html
+│   ├── PENTACLES-01.jpg
+│   ├── PENTACLES-02.jpg
+│   ├── PENTACLES-03.jpg
+│   ├── PENTACLES-04.jpg
+│   ├── PENTACLES-05.jpg
+│   ├── PENTACLES-06.jpg
+│   ├── PENTACLES-07.jpg
+│   ├── PENTACLES-08.jpg
+│   ├── PENTACLES-09.jpg
+│   ├── PENTACLES-10.jpg
+│   ├── PENTACLES-KING.jpg
+│   ├── PENTACLES-KNIGHT.jpg
+│   ├── PENTACLES-PAGE.jpg
+│   └── PENTACLES-QUEEN.jpg
+├── style.css
+├── _Swords
+│   ├── SWORDS-01.jpg
+│   ├── SWORDS-02.jpg
+│   ├── SWORDS-03.jpg
+│   ├── SWORDS-04.jpg
+│   ├── SWORDS-05.jpg
+│   ├── SWORDS-06.jpg
+│   ├── SWORDS-07.jpg
+│   ├── SWORDS-08.jpg
+│   ├── SWORDS-09.jpg
+│   ├── SWORDS-10.jpg
+│   ├── SWORDS-KING.jpg
+│   ├── SWORDS-KNIGHT.jpg
+│   ├── SWORDS-PAGE.jpg
+│   └── SWORDS-QUEEN.jpg
+├── Swords
+│   ├── index.html
+│   ├── SWORDS-01.jpg
+│   ├── SWORDS-02.jpg
+│   ├── SWORDS-03.jpg
+│   ├── SWORDS-04.jpg
+│   ├── SWORDS-05.jpg
+│   ├── SWORDS-06.jpg
+│   ├── SWORDS-07.jpg
+│   ├── SWORDS-08.jpg
+│   ├── SWORDS-09.jpg
+│   ├── SWORDS-10.jpg
+│   ├── SWORDS-KING.jpg
+│   ├── SWORDS-KNIGHT.jpg
+│   ├── SWORDS-PAGE.jpg
+│   └── SWORDS-QUEEN.jpg
+├── tree.txt
+├── _Wands
+│   ├── WANDS-01.jpg
+│   ├── WANDS-02.jpg
+│   ├── WANDS-03.jpg
+│   ├── WANDS-04.jpg
+│   ├── WANDS-05.jpg
+│   ├── WANDS-06.jpg
+│   ├── WANDS-07.jpg
+│   ├── WANDS-08.jpg
+│   ├── WANDS-09.jpg
+│   ├── WANDS-10.jpg
+│   ├── WANDS-KING.jpg
+│   ├── WANDS-KNIGHT.jpg
+│   ├── WANDS-PAGE.jpg
+│   └── WANDS-QUEEN.jpg
+└── Wands
+    ├── index.html
+    ├── WANDS-01.jpg
+    ├── WANDS-02.jpg
+    ├── WANDS-03.jpg
+    ├── WANDS-04.jpg
+    ├── WANDS-05.jpg
+    ├── WANDS-06.jpg
+    ├── WANDS-07.jpg
+    ├── WANDS-08.jpg
+    ├── WANDS-09.jpg
+    ├── WANDS-10.jpg
+    ├── WANDS-KING.jpg
+    ├── WANDS-KNIGHT.jpg
+    ├── WANDS-PAGE.jpg
+    └── WANDS-QUEEN.jpg
+
+13 directories, 175 files

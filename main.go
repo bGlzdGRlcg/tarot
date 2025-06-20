@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"tarot/tarot"
@@ -52,14 +53,21 @@ func main() {
 		return c.Send("pong!")
 	})
 
+	b.Handle(tele.OnText, func(c tele.Context) error {
+		if strings.Contains(c.Text(), "Ciallo") || strings.Contains(c.Text(), "ciallo") {
+			return c.Reply("柚子厨真恶心")
+		}
+		return nil
+	})
+
 	b.Handle("/tarot", func(c tele.Context) error {
 		card, is_down := tarot.Get_tarot()
 		t := &tele.Photo{}
 		if is_down == 0 {
-			t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：" + card.Card_name + " 「正位」\n" + card.Card_up}
+			t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：\n" + card.Card_name + " 「正位」\n" + card.Card_up}
 		}
 		if is_down == 1 {
-			t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：" + card.Card_name + " 「逆位」\n" + card.Card_down}
+			t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：\n" + card.Card_name + " 「逆位」\n" + card.Card_down}
 		}
 		return c.SendAlbum(tele.Album{t})
 	})
@@ -77,7 +85,7 @@ func main() {
 			num := strconv.Itoa(i + 1)
 			frep := f.Frep[i] + "\n"
 			if is_down == 0 {
-				t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: frep + "第" + num + "张牌：\n" + card.Card_name + " 「正位」\n" + card.Card_up}
+				t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: frep + "第" + num + "张牌：" + card.Card_name + " 「正位」\n" + card.Card_up}
 			}
 			if is_down == 1 {
 				t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: frep + "第" + num + "张牌：" + card.Card_name + " 「逆位」\n" + card.Card_down}
@@ -97,6 +105,42 @@ func main() {
 			t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: rpy + card.Card_name + " 「逆位」\n" + card.Card_down}
 		}
 		return c.SendAlbum(tele.Album{t})
+	})
+
+	b.Handle(tele.OnQuery, func(c tele.Context) error {
+		bg := "https://tarot.listder.xyz/Extra/BG.jpg"
+
+		results := make(tele.Results, 1)
+
+		results[0] = &tele.ArticleResult{
+			Title:    "Tarot",
+			Text:     "点击按钮即可占卜",
+			URL:      url,
+			ThumbURL: bg,
+		}
+
+		results[0].SetResultID("0")
+
+		results[0].SetReplyMarkup(&tele.ReplyMarkup{
+			InlineKeyboard: [][]tele.InlineButton{
+				{
+					tele.InlineButton{
+						Text: "少女祈祷中...",
+						Data: "tarot",
+					},
+				},
+			},
+		})
+
+		return c.Answer(&tele.QueryResponse{
+			Results:   results,
+			CacheTime: 1,
+		})
+	})
+
+	b.Handle(tele.OnInlineResult, func(c tele.Context) error {
+		desc := tarot.Get_tarot_inline(url)
+		return c.EditCaption(desc)
 	})
 
 	b.Start()

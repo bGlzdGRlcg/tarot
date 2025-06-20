@@ -26,7 +26,6 @@ go run main.go
 
 - [nonebot_plugin_tarot](https://github.com/MinatoAquaCrews/nonebot_plugin_tarot)
 - [telebot](https://gopkg.in/telebot.v4)
-- [imaging](https://github.com/disintegration/imaging)
 - [godotenv](github.com/joho/godotenv)
 
 ## License
