@@ -73,6 +73,10 @@ func main() {
 	})
 
 	b.Handle("/formation", func(c tele.Context) error {
+		if c.Chat().Type != tele.ChatPrivate {
+			return c.Send("请在私聊中使用此命令。")
+		}
+
 		id, err := strconv.Atoi(c.Message().Payload)
 		if err != nil || id < 0 || id >= 10 {
 			return c.Send(formation_reply)
