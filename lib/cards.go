@@ -1,4 +1,4 @@
-package tarot
+package lib
 
 // Card 结构体
 type Card struct {

@@ -1,4 +1,4 @@
-package tarot
+package lib
 
 // Formation 定义了塔罗牌阵
 type Formation struct {

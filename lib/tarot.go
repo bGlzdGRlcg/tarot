@@ -1,4 +1,4 @@
-package tarot
+package lib
 
 import (
 	"crypto/rand"

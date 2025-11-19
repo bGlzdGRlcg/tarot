@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"tarot/tarot"
+	tarot "tarot/lib"
 
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v4"
