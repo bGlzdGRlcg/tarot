@@ -57,10 +57,10 @@ func main() {
 		if strings.Contains(c.Text(), "Ciallo") || strings.Contains(c.Text(), "ciallo") {
 			return c.Reply("柚子厨真恶心")
 		}
-		if strings.Contains(c.Text(), "何意味") || strings.Contains(c.Text(), "ciallo") {
+		if strings.Contains(c.Text(), "何意味") {
 			return c.Reply("意味何")
 		}
-		if strings.Contains(c.Text(), "意味何") || strings.Contains(c.Text(), "Tarot") {
+		if strings.Contains(c.Text(), "意味何") {
 			return c.Reply("何意味")
 		}
 		return nil
