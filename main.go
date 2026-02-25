@@ -122,11 +122,12 @@ func main() {
 
 		results := make(tele.Results, 1)
 
-		results[0] = &tele.ArticleResult{
-			Title:    "Tarot",
-			Text:     "点击按钮即可占卜",
-			URL:      url,
-			ThumbURL: bg,
+		results[0] = &tele.PhotoResult{
+			URL:         bg,
+			Title:       "塔罗牌",
+			Description: "喵～",
+			Caption:     "点击按钮即可占卜",
+			ThumbURL:    bg,
 		}
 
 		results[0].SetResultID("0")
@@ -149,8 +150,15 @@ func main() {
 	})
 
 	b.Handle(tele.OnInlineResult, func(c tele.Context) error {
-		desc := tarot.Get_tarot_inline(url)
-		return c.EditCaption(desc)
+		card, is_down := tarot.Get_tarot()
+		t := &tele.Photo{}
+		if is_down == 0 {
+			t = &tele.Photo{File: tele.FromURL(url + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：\n" + card.Card_name + " 「正位」\n" + card.Card_up}
+		}
+		if is_down == 1 {
+			t = &tele.Photo{File: tele.FromURL(url + "_" + card.Card_file + ".jpg"), Caption: "看看 " + c.Sender().FirstName + " 抽到了什么：\n" + card.Card_name + " 「逆位」\n" + card.Card_down}
+		}
+		return c.Edit(t)
 	})
 
 	b.Start()
