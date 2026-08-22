@@ -1,0 +1,16 @@
+[Unit]
+Description=Tarot
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/tarot
+EnvironmentFile=/root/tarot/.env
+ExecStart=/root/tarot/tarot
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
