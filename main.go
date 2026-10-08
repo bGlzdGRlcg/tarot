@@ -91,11 +91,21 @@ func drawUniqueTarot(used map[int]struct{}) (tarot.Card, int, error) {
 	return tarot.Card{}, 0, fmt.Errorf("no tarot cards left to draw")
 }
 
+func IsToday(timestamp int64) bool {
+	loc := time.FixedZone("UTC+8", 8*60*60)
+	now := time.Now().In(loc)
+	t := time.Unix(timestamp, 0).In(loc)
+
+	return t.Format("2006-01-02") == now.Format("2006-01-02")
+}
+
 func init() {
 	godotenv.Load()
 }
 
 func main() {
+	UserData := make(map[int64]*tarot.User)
+
 	pref := tele.Settings{
 		Token:  os.Getenv("TOKEN"),
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
@@ -127,10 +137,30 @@ func main() {
 	})
 
 	b.Handle("/tarot", func(c tele.Context) error {
+		if UserData[c.Sender().ID] == nil {
+			UserData[c.Sender().ID] = &tarot.User{
+				UserId:       c.Sender().ID,
+				UpdateTime:   time.Now().Unix(),
+				Frequency:    0,
+				ResultCard:   tarot.Card{},
+				IsResultDown: 0,
+			}
+		}
+		if !IsToday(UserData[c.Sender().ID].UpdateTime) {
+			UserData[c.Sender().ID].Frequency = 0
+		}
+		if UserData[c.Sender().ID].Frequency >= 3 {
+			t := tarotPhoto(assetURL, UserData[c.Sender().ID].ResultCard, UserData[c.Sender().ID].IsResultDown, "你今天已经抽过三次了 这是你的最终结果\n看看 "+senderName(c)+" 抽到了什么：\n")
+			return c.SendAlbum(tele.Album{t})
+		}
+		UserData[c.Sender().ID].Frequency++
+		UserData[c.Sender().ID].UpdateTime = time.Now().Unix()
 		card, isDown, err := tarot.Get_tarot()
 		if err != nil {
 			return err
 		}
+		UserData[c.Sender().ID].ResultCard = card
+		UserData[c.Sender().ID].IsResultDown = isDown
 		t := tarotPhoto(assetURL, card, isDown, "看看 "+senderName(c)+" 抽到了什么：\n")
 		return c.SendAlbum(tele.Album{t})
 	})
@@ -184,15 +214,20 @@ func main() {
 			URL:         bg,
 			Title:       "塔罗牌",
 			Description: "喵～",
-			Caption:     "点击发送即可占卜",
+			Caption:     "点击下方按钮开始占卜",
 			ThumbURL:    bg,
 		}
 
 		results[0].SetResultID("0")
+		markup := &tele.ReplyMarkup{}
+		button := markup.Data("抽一张", "tarot_draw", strconv.FormatInt(c.Sender().ID, 10))
+		markup.Inline(markup.Row(button))
+		results[0].SetReplyMarkup(markup)
 
 		return c.Answer(&tele.QueryResponse{
-			Results:   results,
-			CacheTime: 1,
+			Results:    results,
+			CacheTime:  1,
+			IsPersonal: true,
 		})
 	})
 
@@ -202,7 +237,34 @@ func main() {
 			return fmt.Errorf("guest message has no guest query id")
 		}
 
+		if message.ReplyTo != nil && message.ReplyTo.Sender != nil && message.ReplyTo.Sender.IsBot {
+			return nil
+		}
+
+		if UserData[c.Sender().ID] == nil {
+			UserData[c.Sender().ID] = &tarot.User{
+				UserId:       c.Sender().ID,
+				UpdateTime:   time.Now().Unix(),
+				Frequency:    0,
+				ResultCard:   tarot.Card{},
+				IsResultDown: 0,
+			}
+		}
+		if !IsToday(UserData[c.Sender().ID].UpdateTime) {
+			UserData[c.Sender().ID].Frequency = 0
+		}
+		if UserData[c.Sender().ID].Frequency >= 3 {
+			result := tarotPhotoResult(assetURL, UserData[c.Sender().ID].ResultCard, UserData[c.Sender().ID].IsResultDown, "你今天已经抽过三次了 这是你的最终结果\n看看 "+senderName(c)+" 抽到了什么：\n")
+			return c.AnswerGuest(result)
+		}
+		UserData[c.Sender().ID].Frequency++
+		UserData[c.Sender().ID].UpdateTime = time.Now().Unix()
+
 		card, isDown, err := tarot.Get_tarot()
+
+		UserData[c.Sender().ID].ResultCard = card
+		UserData[c.Sender().ID].IsResultDown = isDown
+
 		if err != nil {
 			return err
 		}
@@ -210,13 +272,46 @@ func main() {
 		return c.AnswerGuest(result)
 	})
 
-	b.Handle(tele.OnInlineResult, func(c tele.Context) error {
+	b.Handle(&tele.Btn{Unique: "tarot_draw"}, func(c tele.Context) error {
+		if c.Callback() == nil || !c.Callback().IsInline() {
+			return c.Respond(&tele.CallbackResponse{Text: "出错了 呜呜呜"})
+		}
+		if c.Sender() == nil || c.Data() != strconv.FormatInt(c.Sender().ID, 10) {
+			return c.Respond(&tele.CallbackResponse{Text: "你不是主人喵～", ShowAlert: true})
+		}
+		if err := c.Respond(); err != nil {
+			return err
+		}
+		if UserData[c.Sender().ID] == nil {
+			UserData[c.Sender().ID] = &tarot.User{
+				UserId:       c.Sender().ID,
+				UpdateTime:   time.Now().Unix(),
+				Frequency:    0,
+				ResultCard:   tarot.Card{},
+				IsResultDown: 0,
+			}
+		}
+		if !IsToday(UserData[c.Sender().ID].UpdateTime) {
+			UserData[c.Sender().ID].Frequency = 0
+		}
+
 		card, isDown, err := tarot.Get_tarot()
+
+		if UserData[c.Sender().ID].Frequency >= 3 {
+			card = UserData[c.Sender().ID].ResultCard
+			isDown = UserData[c.Sender().ID].IsResultDown
+		} else {
+			UserData[c.Sender().ID].Frequency++
+			UserData[c.Sender().ID].UpdateTime = time.Now().Unix()
+			UserData[c.Sender().ID].ResultCard = card
+			UserData[c.Sender().ID].IsResultDown = isDown
+		}
+
 		if err != nil {
 			return err
 		}
 		t := tarotPhoto(assetURL, card, isDown, "看看 "+senderName(c)+" 抽到了什么：\n")
-		if err := c.Edit(t); err != nil && !errors.Is(err, tele.ErrTrueResult) {
+		if err := c.Edit(t, &tele.ReplyMarkup{InlineKeyboard: [][]tele.InlineButton{}}); err != nil && !errors.Is(err, tele.ErrTrueResult) {
 			return err
 		}
 		return nil
