@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	tarot "tarot/lib"
@@ -28,6 +29,11 @@ const formationReply = `塔罗牌阵：
 9. 沙迪若之星牌阵
 请发送 /formation <数字> 来使用对应的牌阵。
 `
+
+var (
+	userData   map[int64]*tarot.User
+	userDataMu sync.Mutex
+)
 
 func normalizeAssetURL(rawURL string) string {
 	if rawURL == "" {
@@ -103,8 +109,59 @@ func init() {
 	godotenv.Load()
 }
 
+func drawTarot(c tele.Context) (tarot.Card, int, bool, error) {
+	var userID int64
+	if message := c.Message(); message != nil && message.GuestUser != nil {
+		userID = message.GuestUser.ID
+	} else if sender := c.Sender(); sender != nil {
+		userID = sender.ID
+	} else {
+		return tarot.Card{}, 0, false, fmt.Errorf("cannot resolve user from context")
+	}
+
+	userDataMu.Lock()
+	defer userDataMu.Unlock()
+
+	user := userData[userID]
+	if user == nil {
+		user = &tarot.User{UserId: userID}
+		userData[userID] = user
+	}
+	if !IsToday(user.UpdateTime) {
+		user.Frequency = 0
+	}
+	if user.Frequency >= 3 {
+		return user.ResultCard, user.IsResultDown, true, nil
+	}
+	card, isDown, err := tarot.Get_tarot()
+	if err != nil {
+		return tarot.Card{}, 0, false, err
+	}
+	user.Frequency++
+	user.UpdateTime = time.Now().Unix()
+	user.ResultCard = card
+	user.IsResultDown = isDown
+	return card, isDown, false, nil
+}
+
+func drawPrefix(c tele.Context, limited bool) string {
+	prefix := "看看 " + senderName(c) + " 抽到了什么：\n"
+	if limited {
+		prefix = "你今天已经抽过三次了 这是你的最终结果\n" + prefix
+	}
+	return prefix
+}
+
+func sendTarot(assetURL string, c tele.Context) (*tele.Photo, error) {
+	card, isDown, limited, err := drawTarot(c)
+	if err != nil {
+		return nil, err
+	}
+	return tarotPhoto(assetURL, card, isDown, drawPrefix(c, limited)), nil
+}
+
 func main() {
-	UserData := make(map[int64]*tarot.User)
+	userData = make(map[int64]*tarot.User)
 
 	pref := tele.Settings{
 		Token:  os.Getenv("TOKEN"),
@@ -137,31 +194,10 @@ func main() {
 	})
 
 	b.Handle("/tarot", func(c tele.Context) error {
-		if UserData[c.Sender().ID] == nil {
-			UserData[c.Sender().ID] = &tarot.User{
-				UserId:       c.Sender().ID,
-				UpdateTime:   time.Now().Unix(),
-				Frequency:    0,
-				ResultCard:   tarot.Card{},
-				IsResultDown: 0,
-			}
-		}
-		if !IsToday(UserData[c.Sender().ID].UpdateTime) {
-			UserData[c.Sender().ID].Frequency = 0
-		}
-		if UserData[c.Sender().ID].Frequency >= 3 {
-			t := tarotPhoto(assetURL, UserData[c.Sender().ID].ResultCard, UserData[c.Sender().ID].IsResultDown, "你今天已经抽过三次了 这是你的最终结果\n看看 "+senderName(c)+" 抽到了什么：\n")
-			return c.SendAlbum(tele.Album{t})
-		}
-		UserData[c.Sender().ID].Frequency++
-		UserData[c.Sender().ID].UpdateTime = time.Now().Unix()
-		card, isDown, err := tarot.Get_tarot()
+		t, err := sendTarot(assetURL, c)
 		if err != nil {
 			return err
 		}
-		UserData[c.Sender().ID].ResultCard = card
-		UserData[c.Sender().ID].IsResultDown = isDown
-		t := tarotPhoto(assetURL, card, isDown, "看看 "+senderName(c)+" 抽到了什么：\n")
 		return c.SendAlbum(tele.Album{t})
 	})
 
@@ -241,35 +277,12 @@ func main() {
 			return nil
 		}
 
-		if UserData[c.Sender().ID] == nil {
-			UserData[c.Sender().ID] = &tarot.User{
-				UserId:       c.Sender().ID,
-				UpdateTime:   time.Now().Unix(),
-				Frequency:    0,
-				ResultCard:   tarot.Card{},
-				IsResultDown: 0,
-			}
-		}
-		if !IsToday(UserData[c.Sender().ID].UpdateTime) {
-			UserData[c.Sender().ID].Frequency = 0
-		}
-		if UserData[c.Sender().ID].Frequency >= 3 {
-			result := tarotPhotoResult(assetURL, UserData[c.Sender().ID].ResultCard, UserData[c.Sender().ID].IsResultDown, "你今天已经抽过三次了 这是你的最终结果\n看看 "+senderName(c)+" 抽到了什么：\n")
-			return c.AnswerGuest(result)
-		}
-		UserData[c.Sender().ID].Frequency++
-		UserData[c.Sender().ID].UpdateTime = time.Now().Unix()
-
-		card, isDown, err := tarot.Get_tarot()
-
-		UserData[c.Sender().ID].ResultCard = card
-		UserData[c.Sender().ID].IsResultDown = isDown
-
+		card, isDown, limited, err := drawTarot(c)
 		if err != nil {
 			return err
 		}
-		result := tarotPhotoResult(assetURL, card, isDown, "看看 "+senderName(c)+" 抽到了什么：\n")
-		return c.AnswerGuest(result)
+
+		return c.AnswerGuest(tarotPhotoResult(assetURL, card, isDown, drawPrefix(c, limited)))
 	})
 
 	b.Handle(&tele.Btn{Unique: "tarot_draw"}, func(c tele.Context) error {
@@ -282,35 +295,11 @@ func main() {
 		if err := c.Respond(); err != nil {
 			return err
 		}
-		if UserData[c.Sender().ID] == nil {
-			UserData[c.Sender().ID] = &tarot.User{
-				UserId:       c.Sender().ID,
-				UpdateTime:   time.Now().Unix(),
-				Frequency:    0,
-				ResultCard:   tarot.Card{},
-				IsResultDown: 0,
-			}
-		}
-		if !IsToday(UserData[c.Sender().ID].UpdateTime) {
-			UserData[c.Sender().ID].Frequency = 0
-		}
-
-		card, isDown, err := tarot.Get_tarot()
-
-		if UserData[c.Sender().ID].Frequency >= 3 {
-			card = UserData[c.Sender().ID].ResultCard
-			isDown = UserData[c.Sender().ID].IsResultDown
-		} else {
-			UserData[c.Sender().ID].Frequency++
-			UserData[c.Sender().ID].UpdateTime = time.Now().Unix()
-			UserData[c.Sender().ID].ResultCard = card
-			UserData[c.Sender().ID].IsResultDown = isDown
-		}
-
+		card, isDown, limited, err := drawTarot(c)
 		if err != nil {
 			return err
 		}
-		t := tarotPhoto(assetURL, card, isDown, "看看 "+senderName(c)+" 抽到了什么：\n")
+		t := tarotPhoto(assetURL, card, isDown, drawPrefix(c, limited))
 		if err := c.Edit(t, &tele.ReplyMarkup{InlineKeyboard: [][]tele.InlineButton{}}); err != nil && !errors.Is(err, tele.ErrTrueResult) {
 			return err
 		}
