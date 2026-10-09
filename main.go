@@ -15,7 +15,7 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-const formation_reply = `塔罗牌阵：
+const formationReply = `塔罗牌阵：
 0. 圣三角牌阵
 1. 圣三角牌阵v2
 2. 时间之流牌阵
@@ -48,17 +48,17 @@ func senderName(c tele.Context) string {
 
 func tarotPhoto(assetURL string, card tarot.Card, isDown int, prefix string) *tele.Photo {
 	position := "正位"
-	meaning := card.Card_up
-	file := card.Card_file
+	meaning := card.Up
+	file := card.File
 	if isDown == 1 {
 		position = "逆位"
-		meaning = card.Card_down
+		meaning = card.Down
 		file = "_" + file
 	}
 
 	return &tele.Photo{
 		File:    tele.FromURL(assetURL + file + ".jpg"),
-		Caption: prefix + card.Card_name + " 「" + position + "」\n" + meaning,
+		Caption: prefix + card.Name + " 「" + position + "」\n" + meaning,
 	}
 }
 
@@ -68,11 +68,11 @@ func tarotPhotoResult(assetURL string, card tarot.Card, isDown int, prefix strin
 	result := &tele.PhotoResult{
 		URL:         photoURL,
 		Title:       "塔罗牌",
-		Description: card.Card_name,
+		Description: card.Name,
 		Caption:     photo.Caption,
 		ThumbURL:    photoURL,
 	}
-	result.SetResultID(fmt.Sprintf("tarot-%d-%d", card.Card_id, isDown))
+	result.SetResultID(fmt.Sprintf("tarot-%d-%d", card.Id, isDown))
 	return result
 }
 
@@ -82,10 +82,10 @@ func drawUniqueTarot(used map[int]struct{}) (tarot.Card, int, error) {
 		if err != nil {
 			return tarot.Card{}, 0, err
 		}
-		if _, exists := used[card.Card_id]; exists {
+		if _, exists := used[card.Id]; exists {
 			continue
 		}
-		used[card.Card_id] = struct{}{}
+		used[card.Id] = struct{}{}
 		return card, isDown, nil
 	}
 	return tarot.Card{}, 0, fmt.Errorf("no tarot cards left to draw")
@@ -173,7 +173,7 @@ func main() {
 
 		id, err := strconv.Atoi(c.Message().Payload)
 		if err != nil || id < 0 || id >= 10 {
-			return c.Send(formation_reply)
+			return c.Send(formationReply)
 		}
 		f := tarot.Formations[id]
 		if err := c.Send("启用" + f.Fname + "，少女祈祷中..."); err != nil {
